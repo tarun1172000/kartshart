@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --background: #fdfdfc;
+    --foreground: #121316;
+    --card: #ffffff;
+    --card-foreground: #121316;
+    --popover: #ffffff;
+    --popover-foreground: #121316;
+    --primary: #0f172a;
+    --primary-foreground: #f8fafc;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f59e0b;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #0f172a;
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: #090a0f;
+    --foreground: #f1f5f9;
+    --card: #11131a;
+    --card-foreground: #f1f5f9;
+    --popover: #11131a;
+    --popover-foreground: #f1f5f9;
+    --primary: #f8fafc;
+    --primary-foreground: #0f172a;
+    --secondary: #1e2230;
+    --secondary-foreground: #f8fafc;
+    --muted: #1e2230;
+    --muted-foreground: #94a3b8;
+    --accent: #f59e0b;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #232838;
+    --input: #232838;
+    --ring: #f8fafc;
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Editorial Typography */
+.font-serif {
+  font-family: var(--font-serif), Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.font-sans {
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Prose Styling for Article Content */
+.prose-editorial {
+  max-width: 72ch;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.85;
+  font-size: 1.125rem;
+  color: var(--foreground);
+}
+
+.prose-editorial h2 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--foreground);
+}
+
+.prose-editorial h3 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+  color: var(--foreground);
+}
+
+.prose-editorial p {
+  margin-bottom: 1.5rem;
+}
+
+.prose-editorial ul,
+.prose-editorial ol {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  padding-left: 1.75rem;
+}
+
+.prose-editorial ul {
+  list-style-type: disc;
+}
+
+.prose-editorial ol {
+  list-style-type: decimal;
+}
+
+.prose-editorial li {
+  margin-bottom: 0.5rem;
+}
+
+.prose-editorial blockquote {
+  border-left: 4px solid var(--accent);
+  padding-left: 1.25rem;
+  font-style: italic;
+  margin: 1.75rem 0;
+  color: var(--muted-foreground);
+}
+
+.prose-editorial img {
+  border-radius: 0.75rem;
+  margin: 2rem 0;
+  width: 100%;
+  height: auto;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.prose-editorial a {
+  color: #f59e0b;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.prose-editorial a:hover {
+  opacity: 0.8;
+}
+
+.prose-editorial pre {
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin: 1.5rem 0;
+}
+
+.prose-editorial code {
+  background-color: var(--muted);
+  color: var(--foreground);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.prose-editorial pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* Prevent iOS Zoom on Inputs */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import Script from "next/script";
 import "./globals.css";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_SITE_URL } from "@/lib/constants";
 
@@ -87,6 +88,24 @@ export default function RootLayout({
       <head>
         <link rel="alternate" type="application/rss+xml" title="Kartshart RSS Feed" href="/rss.xml" />
         <link rel="author" href="/about" />
+        
+        {/* Google Analytics */}
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=G-RM2WNWR2RG`}
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-RM2WNWR2RG');
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased bg-background text-foreground transition-colors duration-200 overflow-x-hidden">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

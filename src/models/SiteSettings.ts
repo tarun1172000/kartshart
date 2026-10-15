@@ -38,7 +38,7 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     description: {
       type: String,
       default:
-        "Kartshart is a modern editorial magazine featuring deep-dive articles across technology, business, lifestyle, culture, and India.",
+        "A modern editorial magazine featuring deep-dive articles across technology, business, lifestyle, culture, and India.",
       required: true,
       trim: true,
     },

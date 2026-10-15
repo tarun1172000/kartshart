@@ -5,7 +5,7 @@ import { ArrowLeft, FolderTree } from "lucide-react";
 import connectToDatabase from "@/lib/mongodb";
 import { Category } from "@/models/Category";
 import { Post } from "@/models/Post";
-import { PostStatus, SITE_NAME, DEFAULT_SITE_URL } from "@/lib/constants";
+import { PostStatus, DEFAULT_SITE_URL } from "@/lib/constants";
 import { PostCard } from "@/components/public/PostCard";
 import { BreadcrumbsJsonLd } from "@/components/public/JsonLd";
 
@@ -26,14 +26,19 @@ export async function generateMetadata({
     return { title: "Category Not Found" };
   }
 
-  const title = category.seoTitle || `${category.name} Articles`;
-  const description =
+  const title = (category.seoTitle || `${category.name} Articles`)
+    .replace(/\s*\|\s*Kartshart\s*$/i, "")
+    .trim();
+  const description = (
     category.seoDescription ||
     category.description ||
-    `Browse all articles in the ${category.name} category on ${SITE_NAME}.`;
+    `Browse all articles in the ${category.name} category.`
+  )
+    .replace(/\s+on Kartshart\b/gi, "")
+    .trim();
 
   return {
-    title: `${title} | ${SITE_NAME}`,
+    title,
     description,
     alternates: {
       canonical: `${DEFAULT_SITE_URL}/category/${category.slug}`,

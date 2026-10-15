@@ -55,15 +55,20 @@ export async function generateMetadata({
     };
   }
 
-  const title = post.seoTitle || post.title;
-  const description = post.seoDescription || post.excerpt;
+  const cleanTitle = (post.seoTitle || post.title)
+    .replace(/\s*\|\s*Kartshart\s*$/i, "")
+    .trim();
+  const cleanDescription = (post.seoDescription || post.excerpt)
+    ?.replace(/^Kartshart is a /i, "A ")
+    ?.replace(/\s+on Kartshart\b/gi, "")
+    ?.trim();
   const canonical = post.canonicalUrl || `${DEFAULT_SITE_URL}/blog/${post.slug}`;
   const ogImage = post.ogImageUrl || post.coverImageUrl;
   const categoryName = (post.categoryId as any)?.name || "Editorial";
 
   return {
-    title: `${title} | ${SITE_NAME}`,
-    description,
+    title: cleanTitle,
+    description: cleanDescription,
     alternates: {
       canonical,
     },
@@ -77,8 +82,8 @@ export async function generateMetadata({
     },
     openGraph: {
       type: "article",
-      title,
-      description,
+      title: cleanTitle,
+      description: cleanDescription,
       url: canonical,
       siteName: SITE_NAME,
       publishedTime: post.publishedAt
@@ -87,7 +92,7 @@ export async function generateMetadata({
       modifiedTime: post.updatedAt
         ? new Date(post.updatedAt).toISOString()
         : undefined,
-      authors: [post.authorName || "Kartshart Editorial Desk"],
+      authors: [post.authorName || "Editorial Desk"],
       section: categoryName,
       tags: post.tags || [],
       images: [
@@ -95,14 +100,14 @@ export async function generateMetadata({
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: post.coverImageAlt || title,
+          alt: post.coverImageAlt || cleanTitle,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: cleanTitle,
+      description: cleanDescription,
       images: [ogImage],
       creator: "@kartshart",
     },

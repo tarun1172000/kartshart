@@ -39,7 +39,7 @@ export async function createCategoryAction(rawInput: unknown) {
       name: data.name,
       slug,
       description: data.description || "",
-      seoTitle: data.seoTitle || `${data.name} | Kartshart`,
+      seoTitle: data.seoTitle || `${data.name} Articles`,
       seoDescription: data.seoDescription || data.description || "",
     });
 
@@ -89,7 +89,7 @@ export async function updateCategoryAction(id: string, rawInput: unknown) {
     category.name = data.name;
     category.slug = slug;
     category.description = data.description || "";
-    category.seoTitle = data.seoTitle || `${data.name} | Kartshart`;
+    category.seoTitle = data.seoTitle || `${data.name} Articles`;
     category.seoDescription = data.seoDescription || data.description || "";
 
     await category.save();

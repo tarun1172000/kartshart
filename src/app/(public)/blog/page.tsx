@@ -11,7 +11,7 @@ import { BreadcrumbsJsonLd } from "@/components/public/JsonLd";
 export const metadata: Metadata = {
   title: "All Articles & Essays",
   description:
-    "Explore in-depth articles, technology insights, business breakdowns, and cultural perspectives on Kartshart.",
+    "Explore in-depth articles, technology insights, business breakdowns, and cultural perspectives.",
   alternates: {
     canonical: "https://kartshart.com/blog",
   },

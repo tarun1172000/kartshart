@@ -53,7 +53,7 @@ export async function ensureDatabaseSeeded() {
       siteName: "Kartshart",
       tagline: "Independent Perspectives, Thoughtful Editorial & Modern Insights",
       description:
-        "Kartshart is a modern editorial magazine featuring deep-dive articles across technology, business, lifestyle, culture, and India.",
+        "A modern editorial magazine featuring deep-dive articles across technology, business, lifestyle, culture, and India.",
       defaultOgImageUrl:
         "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
       twitterHandle: "@kartshart",
@@ -123,7 +123,7 @@ export async function ensureDatabaseSeeded() {
       featured: true,
       publishedAt: new Date(),
       readingTimeMinutes: calculateReadingTime(sampleContentText),
-      seoTitle: "Building at Scale: India's Digital Rails & Innovation | Kartshart",
+      seoTitle: "Building at Scale: India's Digital Rails & Innovation",
       seoDescription:
         "An in-depth analysis of open protocols, developer momentum, and scalable digital infrastructure transforming modern industry.",
       faq: [

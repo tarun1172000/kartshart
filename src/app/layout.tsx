@@ -21,14 +21,14 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL(DEFAULT_SITE_URL),
   title: {
-    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
-    template: `%s | ${SITE_NAME}`,
+    default: SITE_TAGLINE,
+    template: "%s",
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  authors: [{ name: "Kartshart Editorial Desk", url: DEFAULT_SITE_URL }],
-  creator: "Kartshart",
-  publisher: "Kartshart",
+  authors: [{ name: "Editorial Desk", url: DEFAULT_SITE_URL }],
+  creator: "Editorial Desk",
+  publisher: "Editorial Desk",
   formatDetection: {
     email: false,
     address: false,
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: DEFAULT_SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    title: SITE_TAGLINE,
     description: SITE_DESCRIPTION,
     images: [
       {
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    title: SITE_TAGLINE,
     description: SITE_DESCRIPTION,
     creator: "@kartshart",
     images: [

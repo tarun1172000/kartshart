@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Tag as TagIcon } from "lucide-react";
 import connectToDatabase from "@/lib/mongodb";
 import { Post } from "@/models/Post";
-import { PostStatus, SITE_NAME, DEFAULT_SITE_URL } from "@/lib/constants";
+import { PostStatus, DEFAULT_SITE_URL } from "@/lib/constants";
 import { PostCard } from "@/components/public/PostCard";
 import { BreadcrumbsJsonLd } from "@/components/public/JsonLd";
 
@@ -20,8 +20,8 @@ export async function generateMetadata({
   const decoded = decodeURIComponent(slug);
 
   return {
-    title: `Articles Tagged #${decoded} | ${SITE_NAME}`,
-    description: `Browse all articles and essays tagged #${decoded} on ${SITE_NAME}.`,
+    title: `Articles Tagged #${decoded}`,
+    description: `Browse all articles and essays tagged #${decoded}.`,
     alternates: {
       canonical: `${DEFAULT_SITE_URL}/tag/${slug}`,
     },

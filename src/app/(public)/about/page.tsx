@@ -4,9 +4,9 @@ import { Sparkles, ShieldCheck, Compass, Users, BookOpen } from "lucide-react";
 import { SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "About Kartshart — Editorial Standards & Mission",
+  title: "About Us — Editorial Standards & Mission",
   description:
-    "Learn about Kartshart's editorial standards, mission, focus areas, and approach to modern journalism.",
+    "Learn about our editorial standards, mission, focus areas, and approach to modern journalism.",
   alternates: {
     canonical: "https://kartshart.com/about",
   },

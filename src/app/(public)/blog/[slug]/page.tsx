@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, User, ArrowLeft, Tag, Share2, Globe, ShieldCheck } from "lucide-react";
+import { Clock, Calendar, User, ArrowLeft, Tag, Share2, Globe, ShieldCheck, ExternalLink } from "lucide-react";
 import connectToDatabase from "@/lib/mongodb";
 import { Post } from "@/models/Post";
 import { Category } from "@/models/Category";
@@ -245,18 +245,42 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </div>
         </header>
 
-        {/* Cover Image */}
+        {/* Cover Image / Banner */}
         <div className="space-y-2 -mx-4 sm:mx-0">
-          <div className="relative h-[340px] sm:h-[480px] w-full sm:rounded-3xl overflow-hidden shadow-lg bg-slate-100 dark:bg-slate-900">
-            <Image
-              src={post.coverImageUrl}
-              alt={post.coverImageAlt || post.title}
-              fill
-              priority
-              sizes="(max-width: 896px) 100vw, 896px"
-              className="object-cover"
-            />
-          </div>
+          {post.coverImageLink ? (
+            <a
+              href={post.coverImageLink}
+              target={post.coverImageLink.startsWith("http") ? "_blank" : undefined}
+              rel={post.coverImageLink.startsWith("http") ? "noopener noreferrer" : undefined}
+              className="group/banner block relative h-[340px] sm:h-[480px] w-full sm:rounded-3xl overflow-hidden shadow-lg bg-slate-100 dark:bg-slate-900 cursor-pointer"
+            >
+              <Image
+                src={post.coverImageUrl}
+                alt={post.coverImageAlt || post.title}
+                fill
+                priority
+                sizes="(max-width: 896px) 100vw, 896px"
+                className="object-cover group-hover/banner:scale-[1.02] transition-transform duration-500 ease-out"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover/banner:bg-black/20 transition-colors duration-300 flex items-end justify-end p-4 sm:p-6">
+                <span className="opacity-0 group-hover/banner:opacity-100 transition-opacity duration-300 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-950/80 text-white backdrop-blur-md shadow-lg border border-white/20">
+                  <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Visit Destination</span>
+                </span>
+              </div>
+            </a>
+          ) : (
+            <div className="relative h-[340px] sm:h-[480px] w-full sm:rounded-3xl overflow-hidden shadow-lg bg-slate-100 dark:bg-slate-900">
+              <Image
+                src={post.coverImageUrl}
+                alt={post.coverImageAlt || post.title}
+                fill
+                priority
+                sizes="(max-width: 896px) 100vw, 896px"
+                className="object-cover"
+              />
+            </div>
+          )}
           {post.coverImageCredit && (
             <p className="text-[11px] text-slate-400 dark:text-slate-500 text-right italic">
               {post.coverImageCredit}

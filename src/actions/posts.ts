@@ -30,6 +30,7 @@ const PostInputSchema = z.object({
   }),
   coverImageAlt: z.string().min(2, "Image alt text is required for accessibility and SEO").trim(),
   coverImageCredit: z.string().optional(),
+  coverImageLink: z.string().optional(),
   categoryId: z.string().min(1, "Please select a category"),
   tags: z.array(z.string()).default([]),
   status: z.nativeEnum(PostStatus).default(PostStatus.DRAFT),
@@ -95,6 +96,7 @@ export async function createPostAction(rawInput: unknown) {
       coverImageUrl: data.coverImageUrl,
       coverImageAlt: data.coverImageAlt,
       coverImageCredit: data.coverImageCredit || "",
+      coverImageLink: data.coverImageLink?.trim() || "",
       authorId: user._id,
       authorName: user.name,
       categoryId: category._id,
@@ -213,6 +215,7 @@ export async function updatePostAction(id: string, rawInput: unknown) {
     post.coverImageUrl = data.coverImageUrl;
     post.coverImageAlt = data.coverImageAlt;
     post.coverImageCredit = data.coverImageCredit || "";
+    post.coverImageLink = data.coverImageLink?.trim() || "";
     post.categoryId = category._id;
     post.tags = data.tags.map((t) => slugify(t));
     post.featured = data.featured;

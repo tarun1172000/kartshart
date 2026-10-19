@@ -15,6 +15,7 @@ export interface IPost extends Document {
   coverImageUrl: string;
   coverImageAlt: string;
   coverImageCredit?: string;
+  coverImageLink?: string;
   authorId: Types.ObjectId;
   authorName?: string;
   categoryId: Types.ObjectId;
@@ -87,6 +88,11 @@ const PostSchema = new Schema<IPost>(
     coverImageCredit: {
       type: String,
       trim: true,
+    },
+    coverImageLink: {
+      type: String,
+      trim: true,
+      default: "",
     },
     authorId: {
       type: Schema.Types.ObjectId,

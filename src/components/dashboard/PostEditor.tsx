@@ -26,10 +26,412 @@ import {
   Minus,
   AlertCircle,
   ExternalLink,
+  Copy,
+  Check,
+  Code2,
 } from "lucide-react";
 import { PostStatus, Role } from "@/lib/constants";
 import { slugify, isValidImageUrl } from "@/lib/utils";
 import { createPostAction, updatePostAction } from "@/actions/posts";
+
+const SAMPLE_RAW_TEXT_TEMPLATE = `Title: Understanding Digital Public Infrastructure: The Foundation of India's Tech Boom
+Slug: understanding-digital-public-infrastructure
+Excerpt: How UPI, Aadhaar, and open digital networks created an unprecedented ecosystem for startups and global innovation.
+Cover: https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200
+Cover Alt: Digital network glowing nodes concept
+Category: Technology
+Tags: Tech, India, Innovation, DPI
+Language: en
+
+Key Takeaways:
+- Digital public infrastructure democratized access to financial and identity rails.
+- Open APIs enabled private sector innovation to scale at near-zero marginal cost.
+- Next wave focuses on AI-driven governance and multilingual accessibility.
+
+## Introduction to Open Rails
+India's digital transformation has become a global case study in interoperable, public-interest technology platforms. Over the past decade, the country moved from cash-dominant commerce to conducting billions of digital transactions each month.
+
+## Key Catalysts of Growth
+From instant payments to paperless KYC verification, the infrastructure layer solved fundamental friction points for millions of businesses. By creating open protocols rather than closed corporate platforms, innovation flourished across banking, commerce, and mobility.
+
+## What Lies Ahead
+The next decade will see AI layers integrated deeply into public services, healthcare, and educational access. Autonomous agents and multilingual voice interfaces will bring digital services to every citizen in their local language.
+
+FAQs:
+Q: What is Digital Public Infrastructure (DPI)?
+A: DPI refers to digital platforms like digital identity (Aadhaar), payments (UPI), and data exchange networks built as open public goods.
+
+Q: Why is India's tech model considered unique?
+A: Because it separates the public infrastructure layer from private applications, preventing monopolies and fostering fierce competition.`;
+
+const SAMPLE_SCHEMA_TEMPLATE = JSON.stringify(
+  {
+    title: "Understanding Digital Public Infrastructure: The Foundation of India's Tech Boom",
+    slug: "understanding-digital-public-infrastructure",
+    excerpt: "How UPI, Aadhaar, and open digital networks created an unprecedented ecosystem for startups and global innovation.",
+    contentHtml: `<h2>Introduction to Open Rails</h2>\n<p>India's digital transformation has become a global case study in interoperable, public-interest technology platforms.</p>\n<h2>Key Catalysts of Growth</h2>\n<p>From instant payments to paperless KYC verification, the infrastructure layer solved fundamental friction points for millions of businesses.</p>\n<h2>What Lies Ahead</h2>\n<p>The next decade will see AI layers integrated deeply into public services, healthcare, and educational access.</p>`,
+    coverImageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200",
+    coverImageAlt: "Digital network glowing nodes concept",
+    coverImageCredit: "Photo via Unsplash",
+    coverImageLink: "",
+    category: "Technology",
+    tags: ["Tech", "India", "Innovation", "Digital Public Infrastructure"],
+    keyTakeaways: [
+      "Digital public infrastructure democratized access to financial and identity rails.",
+      "Open APIs enabled private sector innovation to scale at near-zero marginal cost.",
+      "Next wave focuses on AI-driven governance and multilingual accessibility."
+    ],
+    faq: [
+      {
+        question: "What is Digital Public Infrastructure (DPI)?",
+        answer: "DPI refers to digital platforms like digital identity, payment systems, and data exchange networks built as public goods."
+      },
+      {
+        question: "Why is India's tech model considered unique?",
+        answer: "Because it separates the public infrastructure layer from private applications, preventing monopolies and fostering fierce competition."
+      }
+    ],
+    seoTitle: "Digital Public Infrastructure in India: Complete Analysis | Kartshart",
+    seoDescription: "An in-depth look at how open digital rails like UPI and Aadhaar reshaped India's economy and inspired global tech governance.",
+    geoFocus: ["India", "Global"],
+    language: "en",
+    featured: true,
+    status: "published"
+  },
+  null,
+  2
+);
+
+function formatInlineMarkdown(str: string): string {
+  return str
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/__(.+?)__/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/_(.+?)_/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+
+function markdownToHtml(md: string): string {
+  if (!md || !md.trim()) return "";
+
+  // If text already has HTML block tags, return as is
+  if (/<(p|h[1-6]|div|section|article|table|ul|ol|blockquote)[\s>]/i.test(md)) {
+    return md.trim();
+  }
+
+  const blocks = md.split(/\n{2,}/);
+  const htmlBlocks: string[] = [];
+
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
+
+    if (trimmed.startsWith("### ")) {
+      htmlBlocks.push(`<h3>${formatInlineMarkdown(trimmed.replace(/^###\s+/, ""))}</h3>`);
+      continue;
+    }
+    if (trimmed.startsWith("## ")) {
+      htmlBlocks.push(`<h2>${formatInlineMarkdown(trimmed.replace(/^##\s+/, ""))}</h2>`);
+      continue;
+    }
+    if (trimmed.startsWith("# ")) {
+      htmlBlocks.push(`<h2>${formatInlineMarkdown(trimmed.replace(/^#\s+/, ""))}</h2>`);
+      continue;
+    }
+    if (trimmed.startsWith("> ")) {
+      const quoteText = trimmed
+        .split("\n")
+        .map((l) => formatInlineMarkdown(l.replace(/^>\s*/, "")))
+        .join("<br />");
+      htmlBlocks.push(`<blockquote>${quoteText}</blockquote>`);
+      continue;
+    }
+    if (/^[-*•]\s+/m.test(trimmed)) {
+      const items = trimmed
+        .split("\n")
+        .map((l) => l.replace(/^[-*•]\s*/, "").trim())
+        .filter(Boolean)
+        .map((it) => `<li>${formatInlineMarkdown(it)}</li>`)
+        .join("\n  ");
+      htmlBlocks.push(`<ul>\n  ${items}\n</ul>`);
+      continue;
+    }
+    if (/^\d+\.\s+/m.test(trimmed)) {
+      const items = trimmed
+        .split("\n")
+        .map((l) => l.replace(/^\d+\.\s*/, "").trim())
+        .filter(Boolean)
+        .map((it) => `<li>${formatInlineMarkdown(it)}</li>`)
+        .join("\n  ");
+      htmlBlocks.push(`<ol>\n  ${items}\n</ol>`);
+      continue;
+    }
+
+    // Regular paragraph
+    const withBr = trimmed
+      .split("\n")
+      .map(formatInlineMarkdown)
+      .join("<br />");
+    htmlBlocks.push(`<p>${withBr}</p>`);
+  }
+
+  return htmlBlocks.join("\n\n");
+}
+
+function parseRawArticleText(text: string, categories: CategoryOption[]) {
+  const lines = text.split("\n");
+  let title = "";
+  let slug = "";
+  let excerpt = "";
+  let coverImageUrl = "";
+  let coverImageAlt = "";
+  let coverImageCredit = "";
+  let coverImageLink = "";
+  let category = "";
+  let tags: string[] = [];
+  let geoFocus: string[] = [];
+  let seoTitle = "";
+  let seoDescription = "";
+  const keyTakeaways: string[] = [];
+  const faqs: { question: string; answer: string }[] = [];
+  let language: "en" | "hi" = "en";
+
+  const contentLines: string[] = [];
+  let currentSection: "meta" | "content" | "takeaways" | "faqs" = "meta";
+  let currentFaqQ = "";
+  let currentFaqA = "";
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+
+    // Check for section transitions
+    const normalized = line.toLowerCase().replace(/[*_#:]/g, "").trim();
+
+    if (
+      normalized === "key takeaways" ||
+      normalized === "takeaways" ||
+      normalized === "key highlights" ||
+      normalized === "highlights"
+    ) {
+      currentSection = "takeaways";
+      continue;
+    }
+
+    if (
+      normalized === "faq" ||
+      normalized === "faqs" ||
+      normalized === "frequently asked questions"
+    ) {
+      if (currentFaqQ && currentFaqA) {
+        faqs.push({ question: currentFaqQ.trim(), answer: currentFaqA.trim() });
+        currentFaqQ = "";
+        currentFaqA = "";
+      }
+      currentSection = "faqs";
+      continue;
+    }
+
+    if (
+      normalized === "article body" ||
+      normalized === "content" ||
+      normalized === "article content" ||
+      normalized === "body"
+    ) {
+      currentSection = "content";
+      continue;
+    }
+
+    // Parse Takeaways
+    if (currentSection === "takeaways") {
+      if (line.startsWith("#") || normalized.startsWith("faq")) {
+        if (normalized.startsWith("faq")) {
+          currentSection = "faqs";
+        } else {
+          currentSection = "content";
+          contentLines.push(rawLine);
+        }
+        continue;
+      }
+      if (line.startsWith("-") || line.startsWith("*") || line.startsWith("•") || /^\d+\./.test(line)) {
+        const cleanT = line.replace(/^[-*•\d.]\s*/, "").trim();
+        if (cleanT) keyTakeaways.push(cleanT);
+        continue;
+      }
+      if (!line) continue;
+    }
+
+    // Parse FAQs
+    if (currentSection === "faqs") {
+      if (line.startsWith("#") && !line.toLowerCase().includes("faq")) {
+        currentSection = "content";
+        contentLines.push(rawLine);
+        continue;
+      }
+
+      const qMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:q|question)\s*(?:\d+)?\s*[:.-]\s*(.+?)(?:\*\*|\*)?$/i);
+      if (qMatch) {
+        if (currentFaqQ && currentFaqA) {
+          faqs.push({ question: currentFaqQ.trim(), answer: currentFaqA.trim() });
+          currentFaqA = "";
+        }
+        currentFaqQ = qMatch[1].replace(/[*_]/g, "").trim();
+        continue;
+      }
+
+      const aMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:a|answer)\s*(?:\d+)?\s*[:.-]\s*(.+?)(?:\*\*|\*)?$/i);
+      if (aMatch) {
+        currentFaqA = aMatch[1].replace(/[*_]/g, "").trim();
+        continue;
+      }
+
+      if (currentFaqQ && !line.startsWith("Q:") && !line.startsWith("Question:")) {
+        currentFaqA = currentFaqA ? `${currentFaqA} ${line}` : line;
+        continue;
+      }
+    }
+
+    // Parse Metadata headers
+    const titleMatch = line.match(/^(?:\*\*|\*|#+)?\s*Title\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (titleMatch) {
+      title = titleMatch[1].trim();
+      continue;
+    }
+
+    const slugMatch = line.match(/^(?:\*\*|\*|#+)?\s*Slug\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (slugMatch) {
+      slug = slugMatch[1].trim();
+      continue;
+    }
+
+    const excerptMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Excerpt|Summary|Executive Summary)\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (excerptMatch) {
+      excerpt = excerptMatch[1].trim();
+      continue;
+    }
+
+    const coverMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Cover|Cover Image|Image|Banner)\s*(?:URL)?\s*[:=]\s*(\S+?)(?:\*\*|\*)?$/i);
+    if (coverMatch) {
+      coverImageUrl = coverMatch[1].trim().replace(/^["']|["']$/g, "");
+      continue;
+    }
+
+    const altMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Alt|Alt Text|Cover Alt)\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (altMatch) {
+      coverImageAlt = altMatch[1].trim();
+      continue;
+    }
+
+    const creditMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Credit|Image Credit|Source)\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (creditMatch) {
+      coverImageCredit = creditMatch[1].trim();
+      continue;
+    }
+
+    const linkMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Link|Banner Link|Image Link)\s*[:=]\s*(\S+?)(?:\*\*|\*)?$/i);
+    if (linkMatch) {
+      coverImageLink = linkMatch[1].trim();
+      continue;
+    }
+
+    const langMatch = line.match(/^(?:\*\*|\*|#+)?\s*Language\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (langMatch) {
+      const val = langMatch[1].toLowerCase().trim();
+      if (val === "hi" || val === "hindi") language = "hi";
+      continue;
+    }
+
+    const categoryMatch = line.match(/^(?:\*\*|\*|#+)?\s*Category\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (categoryMatch) {
+      category = categoryMatch[1].trim();
+      continue;
+    }
+
+    const tagsMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Tags|Keywords)\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (tagsMatch) {
+      tags = tagsMatch[1].split(",").map((s) => s.trim().replace(/^#/, "")).filter(Boolean);
+      continue;
+    }
+
+    const geoMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:Geo|Geo Focus|Geographic Focus)\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (geoMatch) {
+      geoFocus = geoMatch[1].split(",").map((s) => s.trim()).filter(Boolean);
+      continue;
+    }
+
+    const seoTitleMatch = line.match(/^(?:\*\*|\*|#+)?\s*SEO Title\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (seoTitleMatch) {
+      seoTitle = seoTitleMatch[1].trim();
+      continue;
+    }
+
+    const seoDescMatch = line.match(/^(?:\*\*|\*|#+)?\s*(?:SEO Description|Meta Description)\s*[:=]\s*(.+?)(?:\*\*|\*)?$/i);
+    if (seoDescMatch) {
+      seoDescription = seoDescMatch[1].trim();
+      continue;
+    }
+
+    // Markdown H1 `# Title` fallback
+    if (!title && line.startsWith("# ") && !line.startsWith("##")) {
+      title = line.replace(/^#\s*/, "").replace(/[*_]/g, "").trim();
+      continue;
+    }
+
+    // Line belongs to article content
+    contentLines.push(rawLine);
+  }
+
+  // Flush remaining FAQ
+  if (currentFaqQ && currentFaqA) {
+    faqs.push({ question: currentFaqQ.trim(), answer: currentFaqA.trim() });
+  }
+
+  // Match category
+  let categoryId = "";
+  if (category) {
+    const catVal = category.toLowerCase().trim();
+    const found = categories.find(
+      (c) =>
+        c._id.toLowerCase() === catVal ||
+        c.slug.toLowerCase() === catVal ||
+        c.name.toLowerCase() === catVal
+    );
+    if (found) categoryId = found._id;
+  }
+
+  // Join content lines
+  const rawContent = contentLines.join("\n").trim();
+  if (!excerpt && rawContent) {
+    const firstPara = rawContent.split(/\n\s*\n/)[0]?.replace(/^[#*-]\s*/, "").trim();
+    if (firstPara && firstPara.length < 250) {
+      excerpt = firstPara;
+    }
+  }
+
+  const contentHtml = markdownToHtml(rawContent);
+
+  return {
+    title,
+    slug: slug || (title ? slugify(title) : ""),
+    excerpt,
+    contentHtml,
+    coverImageUrl,
+    coverImageAlt: coverImageAlt || (title ? `${title} cover` : ""),
+    coverImageCredit,
+    coverImageLink,
+    categoryId,
+    tags,
+    keyTakeaways,
+    faqs,
+    seoTitle: seoTitle || title,
+    seoDescription: seoDescription || excerpt,
+    ogImageUrl: coverImageUrl,
+    canonicalUrl: "",
+    geoFocus,
+    language,
+  };
+}
 
 interface CategoryOption {
   _id: string;
@@ -124,6 +526,15 @@ export function PostEditor({
       : [{ question: "", answer: "" }]
   );
 
+  // Quick Schema Import State
+  const [schemaRawInput, setSchemaRawInput] = useState("");
+  const [schemaStatus, setSchemaStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+    details?: string[];
+  }>({ type: null, message: "" });
+  const [copiedTemplate, setCopiedTemplate] = useState<"text" | "json" | null>(null);
+
   // UI state
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -136,6 +547,417 @@ export function PostEditor({
     setTitle(val);
     if (!slugManuallyEdited) {
       setSlug(slugify(val));
+    }
+  };
+
+  const handleCopyTemplate = (type: "text" | "json") => {
+    navigator.clipboard.writeText(
+      type === "text" ? SAMPLE_RAW_TEXT_TEMPLATE : SAMPLE_SCHEMA_TEMPLATE
+    );
+    setCopiedTemplate(type);
+    setTimeout(() => setCopiedTemplate(null), 2000);
+  };
+
+  const handleApplySchema = (shouldSwitchToPreview = false) => {
+    if (!schemaRawInput.trim()) {
+      setSchemaStatus({
+        type: "error",
+        message: "Please paste your article text, markdown, or JSON schema first.",
+      });
+      return;
+    }
+
+    try {
+      let raw = schemaRawInput.trim();
+      // Remove markdown code fences if pasted from ChatGPT / Gemini
+      if (raw.startsWith("```")) {
+        raw = raw.replace(/^```(?:json|markdown|text)?\s*\n?/, "").replace(/\n?```\s*$/, "").trim();
+      }
+
+      let isJson = false;
+      let parsedJson: any = null;
+
+      // Check if input looks like JSON
+      if (
+        (raw.startsWith("{") && raw.endsWith("}")) ||
+        (raw.startsWith("[") && raw.endsWith("]"))
+      ) {
+        try {
+          parsedJson = JSON.parse(raw);
+          isJson = true;
+        } catch {
+          // Try smart repair (unescaped newlines inside quotes)
+          try {
+            const sanitized = raw.replace(/"((?:[^"\\]|\\.)*)"/g, (match) => {
+              return match.replace(/\r?\n/g, "\\n").replace(/\t/g, "\\t");
+            });
+            parsedJson = JSON.parse(sanitized);
+            isJson = true;
+          } catch {
+            isJson = false;
+          }
+        }
+      }
+
+      const appliedFields: string[] = [];
+
+      if (!isJson) {
+        // --- PARSE AS RAW ARTICLE / MARKDOWN TEXT ---
+        const parsed = parseRawArticleText(raw, categories);
+
+        if (parsed.title) {
+          setTitle(parsed.title);
+          appliedFields.push("Title");
+        }
+        if (parsed.slug) {
+          setSlug(parsed.slug);
+          setSlugManuallyEdited(true);
+          appliedFields.push("Slug");
+        } else if (parsed.title) {
+          setSlug(slugify(parsed.title));
+        }
+        if (parsed.excerpt) {
+          setExcerpt(parsed.excerpt);
+          appliedFields.push("Excerpt");
+        }
+        if (parsed.contentHtml) {
+          setContentHtml(parsed.contentHtml);
+          appliedFields.push("Article Body (HTML Content)");
+        }
+        if (parsed.coverImageUrl) {
+          setCoverImageUrl(parsed.coverImageUrl);
+          appliedFields.push("Cover Image");
+        }
+        if (parsed.coverImageAlt) {
+          setCoverImageAlt(parsed.coverImageAlt);
+        }
+        if (parsed.categoryId) {
+          setCategoryId(parsed.categoryId);
+          const catObj = categories.find((c) => c._id === parsed.categoryId);
+          appliedFields.push(`Category (${catObj?.name || "Matched"})`);
+        }
+        if (parsed.tags && parsed.tags.length > 0) {
+          setTagsInput(parsed.tags.join(", "));
+          appliedFields.push("Tags");
+        }
+        if (parsed.keyTakeaways && parsed.keyTakeaways.length > 0) {
+          setKeyTakeaways(parsed.keyTakeaways);
+          setAeoExpanded(true);
+          appliedFields.push(`${parsed.keyTakeaways.length} Key Takeaways`);
+        }
+        if (parsed.faqs && parsed.faqs.length > 0) {
+          setFaqList(parsed.faqs);
+          setAeoExpanded(true);
+          appliedFields.push(`${parsed.faqs.length} FAQs`);
+        }
+        if (parsed.seoTitle) {
+          setSeoTitle(parsed.seoTitle);
+          setSeoExpanded(true);
+        }
+        if (parsed.seoDescription) {
+          setSeoDescription(parsed.seoDescription);
+          setSeoExpanded(true);
+        }
+        if (parsed.geoFocus && parsed.geoFocus.length > 0) {
+          setGeoFocusInput(parsed.geoFocus.join(", "));
+        }
+        if (parsed.language) {
+          setLanguage(parsed.language);
+        }
+      } else {
+        // --- PARSE AS JSON / SCHEMA.ORG ---
+        let blogObj: any = parsedJson;
+        let faqArray: any[] = [];
+
+        const items = Array.isArray(parsedJson)
+          ? parsedJson
+          : parsedJson["@graph"] && Array.isArray(parsedJson["@graph"])
+          ? parsedJson["@graph"]
+          : [parsedJson];
+
+        for (const item of items) {
+          if (!item || typeof item !== "object") continue;
+
+          const type = item["@type"] || item.type || "";
+          if (
+            type === "FAQPage" ||
+            item.mainEntity ||
+            (Array.isArray(item.faq) && item.faq.length > 0)
+          ) {
+            if (Array.isArray(item.mainEntity)) {
+              faqArray = item.mainEntity;
+            } else if (Array.isArray(item.faq)) {
+              faqArray = item.faq;
+            }
+          }
+
+          if (
+            type === "BlogPosting" ||
+            type === "Article" ||
+            type === "NewsArticle" ||
+            item.title ||
+            item.headline ||
+            item.contentHtml ||
+            item.articleBody
+          ) {
+            blogObj = { ...item, ...blogObj };
+          }
+        }
+
+        const extractImageUrl = (img: any): string => {
+          if (!img) return "";
+          if (typeof img === "string") return img;
+          if (Array.isArray(img) && img.length > 0) return extractImageUrl(img[0]);
+          if (typeof img === "object" && img.url) return String(img.url);
+          return "";
+        };
+
+        // 1. Title
+        const newTitle = blogObj.title || blogObj.headline || blogObj.name;
+        if (newTitle && typeof newTitle === "string") {
+          setTitle(newTitle.trim());
+          appliedFields.push("Title");
+        }
+
+        // 2. Slug
+        const newSlug = blogObj.slug;
+        if (newSlug && typeof newSlug === "string") {
+          setSlug(slugify(newSlug));
+          setSlugManuallyEdited(true);
+          appliedFields.push("Slug");
+        } else if (newTitle && typeof newTitle === "string") {
+          setSlug(slugify(newTitle));
+        }
+
+        // 3. Excerpt
+        const newExcerpt = blogObj.excerpt || blogObj.description || blogObj.summary;
+        if (newExcerpt && typeof newExcerpt === "string") {
+          setExcerpt(newExcerpt.trim());
+          appliedFields.push("Excerpt");
+        }
+
+        // 4. Content / Article Body (Accepts contentHtml, content, articleBody, body, text, conetct)
+        const rawContent =
+          blogObj.contentHtml ||
+          blogObj.content ||
+          blogObj.articleBody ||
+          blogObj.body ||
+          blogObj.conetct ||
+          blogObj.text;
+        if (rawContent && typeof rawContent === "string") {
+          const finalContent = markdownToHtml(rawContent);
+          setContentHtml(finalContent);
+          appliedFields.push("Article Body (HTML Content)");
+        }
+
+        // 5. Cover Image URL
+        const newCoverImg = extractImageUrl(
+          blogObj.coverImageUrl ||
+            blogObj.coverImage ||
+            blogObj.image ||
+            blogObj.imageUrl
+        );
+        if (newCoverImg) {
+          setCoverImageUrl(newCoverImg);
+          appliedFields.push("Cover Image");
+        }
+
+        // 6. Cover Image Alt
+        const newAlt =
+          blogObj.coverImageAlt ||
+          blogObj.imageAlt ||
+          blogObj.alt ||
+          (newTitle ? `${newTitle} cover` : "");
+        if (newAlt) {
+          setCoverImageAlt(String(newAlt));
+        }
+
+        // 7. Cover Image Credit & Link
+        if (blogObj.coverImageCredit || blogObj.imageCredit || blogObj.credit) {
+          setCoverImageCredit(
+            String(blogObj.coverImageCredit || blogObj.imageCredit || blogObj.credit)
+          );
+        }
+        if (blogObj.coverImageLink || blogObj.imageLink || blogObj.bannerLink) {
+          setCoverImageLink(
+            String(blogObj.coverImageLink || blogObj.imageLink || blogObj.bannerLink)
+          );
+        }
+
+        // 8. Category
+        const catVal =
+          blogObj.category ||
+          blogObj.categoryId ||
+          blogObj.categoryName ||
+          blogObj.articleSection;
+        if (catVal) {
+          const valStr = String(catVal).toLowerCase().trim();
+          const matched = categories.find(
+            (c) =>
+              c._id.toLowerCase() === valStr ||
+              c.slug.toLowerCase() === valStr ||
+              c.name.toLowerCase() === valStr
+          );
+          if (matched) {
+            setCategoryId(matched._id);
+            appliedFields.push(`Category (${matched.name})`);
+          }
+        }
+
+        // 9. Tags
+        const rawTags = blogObj.tags || blogObj.keywords;
+        if (Array.isArray(rawTags) && rawTags.length > 0) {
+          const tagStr = rawTags.map(String).filter(Boolean).join(", ");
+          setTagsInput(tagStr);
+          appliedFields.push("Tags");
+        } else if (typeof rawTags === "string" && rawTags.trim()) {
+          setTagsInput(rawTags.trim());
+          appliedFields.push("Tags");
+        }
+
+        // 10. Key Takeaways
+        const rawTakeaways =
+          blogObj.keyTakeaways || blogObj.takeaways || blogObj.highlights;
+        if (Array.isArray(rawTakeaways) && rawTakeaways.length > 0) {
+          const cleaned = rawTakeaways.map(String).filter((t) => t.trim().length > 0);
+          if (cleaned.length > 0) {
+            setKeyTakeaways(cleaned);
+            setAeoExpanded(true);
+            appliedFields.push(`${cleaned.length} Key Takeaways`);
+          }
+        } else if (typeof rawTakeaways === "string" && rawTakeaways.trim()) {
+          const lines = rawTakeaways
+            .split(/\n|•|- /)
+            .map((s) => s.trim())
+            .filter(Boolean);
+          if (lines.length > 0) {
+            setKeyTakeaways(lines);
+            setAeoExpanded(true);
+            appliedFields.push(`${lines.length} Key Takeaways`);
+          }
+        }
+
+        // 11. FAQ Items
+        const rawFaqs = (faqArray.length > 0 ? faqArray : blogObj.faq || blogObj.faqs) || [];
+        if (Array.isArray(rawFaqs) && rawFaqs.length > 0) {
+          const parsedFaqs: { question: string; answer: string }[] = [];
+          for (const f of rawFaqs) {
+            if (!f || typeof f !== "object") continue;
+            if (f.name && f.acceptedAnswer) {
+              const ans =
+                typeof f.acceptedAnswer === "object"
+                  ? f.acceptedAnswer.text
+                  : String(f.acceptedAnswer);
+              if (f.name && ans) {
+                parsedFaqs.push({ question: String(f.name), answer: String(ans) });
+              }
+            } else if (f.question && (f.answer || f.ans)) {
+              parsedFaqs.push({
+                question: String(f.question),
+                answer: String(f.answer || f.ans),
+              });
+            } else if (f.q && (f.a || f.answer)) {
+              parsedFaqs.push({
+                question: String(f.q),
+                answer: String(f.a || f.answer),
+              });
+            }
+          }
+          if (parsedFaqs.length > 0) {
+            setFaqList(parsedFaqs);
+            setAeoExpanded(true);
+            appliedFields.push(`${parsedFaqs.length} FAQs`);
+          }
+        }
+
+        // 12. SEO Title & Description
+        const newSeoTitle = blogObj.seoTitle || blogObj.metaTitle;
+        if (newSeoTitle) {
+          setSeoTitle(String(newSeoTitle));
+          setSeoExpanded(true);
+          appliedFields.push("SEO Title");
+        }
+        const newSeoDesc = blogObj.seoDescription || blogObj.metaDescription;
+        if (newSeoDesc) {
+          setSeoDescription(String(newSeoDesc));
+          setSeoExpanded(true);
+          appliedFields.push("SEO Description");
+        }
+
+        // 13. OG Image & Canonical
+        const newOgImg = extractImageUrl(blogObj.ogImageUrl || blogObj.ogImage);
+        if (newOgImg) {
+          setOgImageUrl(newOgImg);
+          setSeoExpanded(true);
+        }
+        const newCanonical =
+          blogObj.canonicalUrl ||
+          (blogObj.mainEntityOfPage && typeof blogObj.mainEntityOfPage === "object"
+            ? blogObj.mainEntityOfPage["@id"]
+            : typeof blogObj.mainEntityOfPage === "string"
+            ? blogObj.mainEntityOfPage
+            : "");
+        if (newCanonical) {
+          setCanonicalUrl(String(newCanonical));
+          setSeoExpanded(true);
+        }
+
+        // 14. Geo Focus
+        const rawGeo = blogObj.geoFocus;
+        if (Array.isArray(rawGeo) && rawGeo.length > 0) {
+          setGeoFocusInput(rawGeo.map(String).filter(Boolean).join(", "));
+        } else if (typeof rawGeo === "string" && rawGeo.trim()) {
+          setGeoFocusInput(rawGeo.trim());
+        }
+
+        // 15. Language
+        if (blogObj.language === "hi" || blogObj.inLanguage === "hi") {
+          setLanguage("hi");
+        } else if (blogObj.language === "en" || blogObj.inLanguage === "en") {
+          setLanguage("en");
+        }
+
+        // 16. Status & Featured
+        if (
+          blogObj.status &&
+          Object.values(PostStatus).includes(blogObj.status as PostStatus)
+        ) {
+          setStatus(blogObj.status as PostStatus);
+        }
+        if (typeof blogObj.featured === "boolean") {
+          setFeatured(blogObj.featured);
+        }
+      }
+
+      if (appliedFields.length === 0) {
+        setSchemaStatus({
+          type: "error",
+          message:
+            "Could not detect recognizable content (Title, Body, FAQs, etc.). Please check your pasted text.",
+        });
+        return;
+      }
+
+      setSchemaStatus({
+        type: "success",
+        message: `Content & metadata successfully applied! ${appliedFields.length} fields filled in form & live preview.`,
+        details: appliedFields,
+      });
+
+      if (shouldSwitchToPreview) {
+        setActiveTab("preview");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const el = document.getElementById("post-form-top");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    } catch (err: any) {
+      setSchemaStatus({
+        type: "error",
+        message: `Error parsing content: ${err?.message || "Please check format."}`,
+      });
     }
   };
 
@@ -326,6 +1148,20 @@ export function PostEditor({
               <Eye className="w-3.5 h-3.5" />
               <span>Preview</span>
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("edit");
+                setTimeout(() => {
+                  document.getElementById("schema-import-box")?.scrollIntoView({ behavior: "smooth" });
+                }, 50);
+              }}
+              className="px-2.5 py-1.5 text-xs font-semibold rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 flex items-center gap-1 transition-all"
+              title="Jump to Schema / JSON Quick Import Box"
+            >
+              <Sparkles className="w-3 h-3 text-amber-500" />
+              <span>Import Schema</span>
+            </button>
           </div>
 
           <button
@@ -413,10 +1249,35 @@ export function PostEditor({
             className="prose-editorial"
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
+
+          {faqList.filter((f) => f.question && f.answer).length > 0 && (
+            <div className="max-w-prose mx-auto pt-8 border-t border-slate-200 dark:border-slate-800 space-y-4">
+              <h4 className="font-serif text-xl font-bold text-slate-900 dark:text-white">
+                Frequently Asked Questions
+              </h4>
+              <div className="space-y-3">
+                {faqList
+                  .filter((f) => f.question && f.answer)
+                  .map((faq, idx) => (
+                    <div
+                      key={idx}
+                      className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800"
+                    >
+                      <h5 className="font-semibold text-slate-900 dark:text-white text-sm mb-1.5">
+                        {faq.question}
+                      </h5>
+                      <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         /* Editor Mode */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div id="post-form-top" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content Column */}
           <div className="lg:col-span-8 space-y-6">
             {/* Title & Slug */}
@@ -823,6 +1684,161 @@ export function PostEditor({
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Quick Content & Schema Auto-Fill Box */}
+            <div
+              id="schema-import-box"
+              className="p-6 rounded-2xl bg-gradient-to-b from-amber-500/5 via-white to-white dark:from-amber-500/10 dark:via-[#10121a] dark:to-[#10121a] border-2 border-dashed border-amber-500/40 dark:border-amber-500/30 space-y-4 shadow-sm"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                        Smart Article & Content Quick Paste
+                      </h3>
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                        Text + JSON + Content
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Aap raw article text / markdown paste karein ya JSON schema — Title, Excerpt, FAQs aur <strong>POORA ARTICLE CONTENT</strong> apne aap form aur preview me fill ho jayega.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleCopyTemplate("text")}
+                    className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 transition-all shadow-xs"
+                    title="Copy easy raw text/markdown prompt template"
+                  >
+                    {copiedTemplate === "text" ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        <span className="text-emerald-600 dark:text-emerald-400">Copied Text!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Text Template</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCopyTemplate("json")}
+                    className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 transition-all shadow-xs"
+                    title="Copy structured JSON schema template"
+                  >
+                    {copiedTemplate === "json" ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        <span className="text-emerald-600 dark:text-emerald-400">Copied JSON!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Code2 className="w-3.5 h-3.5" />
+                        <span>Copy JSON Schema</span>
+                      </>
+                    )}
+                  </button>
+
+                  {schemaRawInput && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSchemaRawInput("");
+                        setSchemaStatus({ type: null, message: "" });
+                      }}
+                      className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-500 transition-colors"
+                      title="Clear textarea"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Alert */}
+              {schemaStatus.type === "success" && (
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs space-y-2">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    <span>{schemaStatus.message}</span>
+                  </div>
+                  {schemaStatus.details && schemaStatus.details.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {schemaStatus.details.map((field, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-100 text-[11px] font-medium"
+                        >
+                          ✓ {field}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {schemaStatus.type === "error" && (
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                  <span>{schemaStatus.message}</span>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-mono text-[11px] flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Paste Raw Article Text, Markdown, or JSON:</span>
+                  </span>
+                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                    Auto-converts markdown headings & paragraphs to HTML
+                  </span>
+                </div>
+                <textarea
+                  rows={10}
+                  value={schemaRawInput}
+                  onChange={(e) => setSchemaRawInput(e.target.value)}
+                  placeholder={`Title: Article Ka Title Yahan Likhein\nExcerpt: 1-2 line summary...\nCover: https://images.unsplash.com/photo-...\nCategory: Technology\nTags: Tech, AI, India\n\nKey Takeaways:\n- Pehla main point\n- Doosra main point\n\n## Introduction\nYahan poora article content paragraphs me paste kar sakte hain...\n\n## Subheading\nAgla paragraph... Markdown headings (##) aur lists (- ) apne aap formatted HTML ban jayenge.\n\nFAQs:\nQ: Question 1?\nA: Answer 1.\n\n(YA FIR AAP JSON SCHEMA BHI DIRECT PASTE KAR SAKTE HAIN)`}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/40 placeholder:text-slate-400/70 shadow-inner"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  💡 <strong>Tip:</strong> ChatGPT ya Google Docs se seedha Title aur Content copy karke yahan daalein — ek click me poora blog form aur live preview me load ho jayega!
+                </p>
+
+                <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleApplySchema(false)}
+                    className="px-4 py-2 text-xs font-bold rounded-xl bg-amber-500 text-slate-950 hover:bg-amber-400 transition-all shadow-xs flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Apply to Form (फॉर्म में भरें)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleApplySchema(true)}
+                    className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-900 text-white dark:bg-slate-800 dark:text-white hover:bg-slate-800 dark:hover:bg-slate-700 transition-all shadow-xs flex items-center gap-1.5"
+                  >
+                    <Eye className="w-4 h-4 text-amber-400" />
+                    <span>Apply & View Preview</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 

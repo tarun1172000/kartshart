@@ -106,6 +106,21 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* Microsoft Clarity */}
+        <Script
+          id="microsoft-clarity"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(c,l,a,r,i,t,y){
+                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "z1m93vpcpf");
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased bg-background text-foreground transition-colors duration-200 overflow-x-hidden">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

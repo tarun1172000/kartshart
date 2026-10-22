@@ -51,6 +51,8 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     coverImageAlt: post.coverImageAlt,
     coverImageCredit: post.coverImageCredit,
     coverImageLink: post.coverImageLink || "",
+    showBannerPopup: Boolean(post.showBannerPopup),
+    bannerClicks: post.bannerClicks || 0,
     categoryId: post.categoryId.toString(),
     tags: post.tags,
     status: post.status,

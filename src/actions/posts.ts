@@ -31,6 +31,7 @@ const PostInputSchema = z.object({
   coverImageAlt: z.string().min(2, "Image alt text is required for accessibility and SEO").trim(),
   coverImageCredit: z.string().optional(),
   coverImageLink: z.string().optional(),
+  showBannerPopup: z.boolean().optional().default(false),
   categoryId: z.string().min(1, "Please select a category"),
   tags: z.array(z.string()).default([]),
   status: z.nativeEnum(PostStatus).default(PostStatus.DRAFT),
@@ -97,6 +98,8 @@ export async function createPostAction(rawInput: unknown) {
       coverImageAlt: data.coverImageAlt,
       coverImageCredit: data.coverImageCredit || "",
       coverImageLink: data.coverImageLink?.trim() || "",
+      showBannerPopup: Boolean(data.showBannerPopup),
+      bannerClicks: 0,
       authorId: user._id,
       authorName: user.name,
       categoryId: category._id,
@@ -216,6 +219,7 @@ export async function updatePostAction(id: string, rawInput: unknown) {
     post.coverImageAlt = data.coverImageAlt;
     post.coverImageCredit = data.coverImageCredit || "";
     post.coverImageLink = data.coverImageLink?.trim() || "";
+    post.showBannerPopup = Boolean(data.showBannerPopup);
     post.categoryId = category._id;
     post.tags = data.tags.map((t) => slugify(t));
     post.featured = data.featured;
@@ -315,3 +319,21 @@ export async function incrementPostViewAction(slug: string) {
     return { success: false };
   }
 }
+
+/**
+ * Track banner / popup clicks and increment click count in database
+ */
+export async function trackBannerClickAction(slug: string) {
+  try {
+    await connectToDatabase();
+    const result = await Post.findOneAndUpdate(
+      { slug, status: PostStatus.PUBLISHED },
+      { $inc: { bannerClicks: 1 } },
+      { new: true }
+    ).select("bannerClicks");
+    return { success: true, bannerClicks: result?.bannerClicks || 0 };
+  } catch {
+    return { success: false };
+  }
+}
+

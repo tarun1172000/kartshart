@@ -18,6 +18,7 @@ import {
 } from "@/components/public/JsonLd";
 import { ReadingProgressBar } from "@/components/ui/ReadingProgressBar";
 import { incrementPostViewAction } from "@/actions/posts";
+import { BannerPopupModal } from "@/components/public/BannerPopupModal";
 
 export const revalidate = 60;
 
@@ -173,6 +174,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   return (
     <>
       <ReadingProgressBar />
+
+      {/* Promotional Banner Popup (Controlled by schema/model showBannerPopup toggle) */}
+      {post.showBannerPopup && post.coverImageUrl && (
+        <BannerPopupModal
+          imageUrl={post.coverImageUrl}
+          imageAlt={post.coverImageAlt || post.title}
+          destinationUrl={post.coverImageLink}
+          postTitle={post.title}
+          postSlug={post.slug}
+          enabled={Boolean(post.showBannerPopup)}
+        />
+      )}
 
       {/* JSON-LD Schemas for SEO, AEO, and GEO */}
       <ArticleJsonLd

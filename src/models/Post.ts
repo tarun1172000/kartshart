@@ -16,6 +16,8 @@ export interface IPost extends Document {
   coverImageAlt: string;
   coverImageCredit?: string;
   coverImageLink?: string;
+  showBannerPopup?: boolean;
+  bannerClicks?: number;
   authorId: Types.ObjectId;
   authorName?: string;
   categoryId: Types.ObjectId;
@@ -93,6 +95,14 @@ const PostSchema = new Schema<IPost>(
       type: String,
       trim: true,
       default: "",
+    },
+    showBannerPopup: {
+      type: Boolean,
+      default: false,
+    },
+    bannerClicks: {
+      type: Number,
+      default: 0,
     },
     authorId: {
       type: Schema.Types.ObjectId,
@@ -185,6 +195,10 @@ const PostSchema = new Schema<IPost>(
 // Compound index for fast queries by status and publishedAt
 PostSchema.index({ status: 1, publishedAt: -1 });
 PostSchema.index({ categoryId: 1, status: 1, publishedAt: -1 });
+
+if (process.env.NODE_ENV === "development") {
+  delete (mongoose.models as any).Post;
+}
 
 export const Post: Model<IPost> =
   mongoose.models.Post || mongoose.model<IPost>("Post", PostSchema);

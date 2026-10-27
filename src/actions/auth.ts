@@ -21,6 +21,7 @@ import {
   UserStatus,
 } from "@/lib/constants";
 import { ensureDatabaseSeeded } from "@/lib/seed";
+import { getZodErrorMessage } from "@/lib/utils";
 
 const SendOtpSchema = z.object({
   email: z.string().email("Please enter a valid email address").trim().toLowerCase(),
@@ -48,7 +49,7 @@ export async function sendOtpAction(rawEmail: string) {
   try {
     const parseResult = SendOtpSchema.safeParse({ email: rawEmail });
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const { email } = parseResult.data;
@@ -140,7 +141,7 @@ export async function verifyOtpAction(rawEmail: string, rawCode: string) {
     });
 
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const { email, code } = parseResult.data;
@@ -212,7 +213,7 @@ export async function requestAccessAction(data: {
   try {
     const parseResult = RequestAccessSchema.safeParse(data);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const { name, email, reason } = parseResult.data;

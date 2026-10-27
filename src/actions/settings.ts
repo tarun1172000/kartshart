@@ -6,6 +6,7 @@ import connectToDatabase from "@/lib/mongodb";
 import { SiteSettings } from "@/models/SiteSettings";
 import { requireRole } from "@/lib/auth";
 import { Role } from "@/lib/constants";
+import { getZodErrorMessage } from "@/lib/utils";
 
 const SettingsSchema = z.object({
   siteName: z.string().min(2).default("Kartshart"),
@@ -35,7 +36,7 @@ export async function updateSiteSettingsAction(rawInput: unknown) {
 
     const parseResult = SettingsSchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const data = parseResult.data;

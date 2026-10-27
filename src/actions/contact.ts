@@ -7,6 +7,7 @@ import { ContactMessage } from "@/models/ContactMessage";
 import { sendContactFormNotificationEmail } from "@/lib/email";
 import { SUPER_ADMIN_EMAIL, Role } from "@/lib/constants";
 import { requireRole } from "@/lib/auth";
+import { getZodErrorMessage } from "@/lib/utils";
 
 const ContactSchema = z.object({
   name: z.string().min(2, "Name is required").trim(),
@@ -19,7 +20,7 @@ export async function submitContactMessageAction(rawInput: unknown) {
   try {
     const parseResult = ContactSchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const { name, email, subject, message } = parseResult.data;

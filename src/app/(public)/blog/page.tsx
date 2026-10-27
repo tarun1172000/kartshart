@@ -7,6 +7,7 @@ import { Category } from "@/models/Category";
 import { PostStatus, SITE_NAME } from "@/lib/constants";
 import { PostCard } from "@/components/public/PostCard";
 import { BreadcrumbsJsonLd } from "@/components/public/JsonLd";
+import { SidebarAd } from "@/components/public/SidebarAd";
 
 export const metadata: Metadata = {
   title: "All Articles & Essays",
@@ -160,30 +161,39 @@ export default async function BlogArchivePage({
           </div>
         </div>
 
-        {/* Posts Grid */}
-        {formattedPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {formattedPosts.map((post) => (
-              <PostCard key={post._id} post={post} variant="standard" />
-            ))}
+        {/* Posts Grid & Sidebar Ad */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-8">
+            {formattedPosts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                {formattedPosts.map((post) => (
+                  <PostCard key={post._id} post={post} variant="standard" />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-white dark:bg-[#10121a] rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                <BookOpen className="w-12 h-12 text-slate-400 mx-auto" />
+                <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-white">
+                  No matching articles found
+                </h3>
+                <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                  We couldn’t find any published articles matching your criteria. Try adjusting your search keywords or topic filter.
+                </p>
+                <Link
+                  href="/blog"
+                  className="inline-block px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950"
+                >
+                  Clear Filters
+                </Link>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-20 bg-white dark:bg-[#10121a] rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
-            <BookOpen className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-white">
-              No matching articles found
-            </h3>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              We couldn’t find any published articles matching your criteria. Try adjusting your search keywords or topic filter.
-            </p>
-            <Link
-              href="/blog"
-              className="inline-block px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950"
-            >
-              Clear Filters
-            </Link>
-          </div>
-        )}
+
+          {/* Sticky Sidebar Ad */}
+          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 w-full">
+            <SidebarAd />
+          </aside>
+        </div>
 
         {/* Pagination */}
         {totalPages > 1 && (

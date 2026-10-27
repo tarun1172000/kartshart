@@ -13,6 +13,7 @@ import {
   calculateReadingTime,
   extractExcerpt,
   isValidImageUrl,
+  getZodErrorMessage,
 } from "@/lib/utils";
 
 const FaqItemSchema = z.object({
@@ -54,7 +55,7 @@ export async function createPostAction(rawInput: unknown) {
 
     const parseResult = PostInputSchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const data = parseResult.data;
@@ -169,7 +170,7 @@ export async function updatePostAction(id: string, rawInput: unknown) {
 
     const parseResult = PostInputSchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const data = parseResult.data;

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import connectToDatabase from "@/lib/mongodb";
 import { MediaAsset } from "@/models/MediaAsset";
 import { requireUser } from "@/lib/auth";
-import { isValidImageUrl } from "@/lib/utils";
+import { isValidImageUrl, getZodErrorMessage } from "@/lib/utils";
 
 const MediaAssetSchema = z.object({
   title: z.string().optional(),
@@ -23,7 +23,7 @@ export async function saveMediaAssetAction(rawInput: unknown) {
 
     const parseResult = MediaAssetSchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const data = parseResult.data;

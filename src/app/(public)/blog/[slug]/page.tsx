@@ -19,6 +19,7 @@ import {
 import { ReadingProgressBar } from "@/components/ui/ReadingProgressBar";
 import { incrementPostViewAction } from "@/actions/posts";
 import { BannerPopupModal } from "@/components/public/BannerPopupModal";
+import { SidebarAd } from "@/components/public/SidebarAd";
 
 export const revalidate = 60;
 
@@ -200,11 +201,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         articleBody={post.contentText}
       />
       <FaqJsonLd faq={post.faq} />
-      <BreadcrumbsJsonLd items={breadcrumbs} />
-
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         {/* Back Link & Category */}
-        <div className="flex items-center justify-between text-xs font-semibold">
+        <div className="flex items-center justify-between text-xs font-semibold mb-8">
           <Link
             href="/blog"
             className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
@@ -220,6 +219,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {category.name}
           </Link>
         </div>
+
+        {/* 2-Column Grid: Article (8 cols) + Sticky Sidebar Ad (4 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <article className="lg:col-span-8 space-y-10">
 
         {/* Header Block */}
         <header className="space-y-6 text-center sm:text-left">
@@ -332,21 +335,48 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {/* AEO FAQ Section */}
         {post.faq && post.faq.length > 0 && <FaqSection faqList={post.faq} />}
-
-        {/* Related Articles Strip */}
-        {formattedRelated.length > 0 && (
-          <section className="pt-12 border-t border-slate-200 dark:border-slate-800 space-y-6">
-            <h3 className="font-serif text-2xl font-bold text-slate-900 dark:text-white">
-              Related in {category.name}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {formattedRelated.map((rel) => (
-                <PostCard key={rel._id} post={rel} variant="compact" />
-              ))}
-            </div>
-          </section>
-        )}
       </article>
-    </>
-  );
+
+      {/* Sticky Sidebar on Desktop with Sidebar Ad */}
+      <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 w-full">
+        {/* Dynamic Sidebar Ad */}
+        <SidebarAd />
+
+        {/* About Editorial Card */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+            About the Editorial
+          </span>
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Kartshart brings independent editorial journalism, technology analysis, and curated insights.
+          </p>
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold">
+            <span className="text-slate-400">Category</span>
+            <Link
+              href={`/category/${category.slug}`}
+              className="text-amber-600 dark:text-amber-400 hover:underline"
+            >
+              {category.name}
+            </Link>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    {/* Related Articles Strip (Full Width) */}
+    {formattedRelated.length > 0 && (
+      <section className="pt-16 mt-16 border-t border-slate-200 dark:border-slate-800 space-y-6">
+        <h3 className="font-serif text-2xl font-bold text-slate-900 dark:text-white">
+          Related in {category.name}
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {formattedRelated.map((rel) => (
+            <PostCard key={rel._id} post={rel} variant="compact" />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</>
+);
 }

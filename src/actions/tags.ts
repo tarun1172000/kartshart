@@ -6,7 +6,7 @@ import connectToDatabase from "@/lib/mongodb";
 import { Tag } from "@/models/Tag";
 import { requireRole } from "@/lib/auth";
 import { Role } from "@/lib/constants";
-import { slugify } from "@/lib/utils";
+import { slugify, getZodErrorMessage } from "@/lib/utils";
 
 const TagSchema = z.object({
   name: z.string().min(2, "Tag name is required").trim(),
@@ -19,7 +19,7 @@ export async function createTagAction(rawName: string) {
 
     const parseResult = TagSchema.safeParse({ name: rawName });
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const name = parseResult.data.name;

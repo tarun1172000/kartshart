@@ -7,7 +7,7 @@ import { Category } from "@/models/Category";
 import { Post } from "@/models/Post";
 import { requireRole } from "@/lib/auth";
 import { Role } from "@/lib/constants";
-import { slugify } from "@/lib/utils";
+import { slugify, getZodErrorMessage } from "@/lib/utils";
 
 const CategorySchema = z.object({
   name: z.string().min(2, "Category name is required").trim(),
@@ -24,7 +24,7 @@ export async function createCategoryAction(rawInput: unknown) {
 
     const parseResult = CategorySchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const data = parseResult.data;
@@ -68,7 +68,7 @@ export async function updateCategoryAction(id: string, rawInput: unknown) {
 
     const parseResult = CategorySchema.safeParse(rawInput);
     if (!parseResult.success) {
-      return { success: false, error: parseResult.error.errors[0].message };
+      return { success: false, error: getZodErrorMessage(parseResult.error) };
     }
 
     const category = await Category.findById(id);

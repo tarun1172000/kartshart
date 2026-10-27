@@ -16,6 +16,7 @@ import {
   LogOut,
   ExternalLink,
   ShieldAlert,
+  Megaphone,
 } from "lucide-react";
 import { Role } from "@/lib/constants";
 import { logoutAction } from "@/actions/auth";
@@ -80,6 +81,12 @@ export function DashboardSidebar({
       href: "/dashboard/media",
       icon: ImageIcon,
       roles: [Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR],
+    },
+    {
+      label: "Advertisements & Ads",
+      href: "/dashboard/ads",
+      icon: Megaphone,
+      roles: [Role.SUPER_ADMIN, Role.ADMIN],
     },
     {
       label: "Inbox Messages",

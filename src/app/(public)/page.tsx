@@ -3,10 +3,12 @@ import { ArrowRight, Sparkles, Compass, TrendingUp, ShieldCheck } from "lucide-r
 import connectToDatabase from "@/lib/mongodb";
 import { Post } from "@/models/Post";
 import { Category } from "@/models/Category";
+import { Ad } from "@/models/Ad";
 import { PostStatus } from "@/lib/constants";
 import { ensureDatabaseSeeded } from "@/lib/seed";
 import { PostCard } from "@/components/public/PostCard";
 import { WebsiteJsonLd } from "@/components/public/JsonLd";
+import { SidebarAd } from "@/components/public/SidebarAd";
 
 export const revalidate = 60;
 
@@ -77,27 +79,50 @@ export default async function HomePage() {
   const formattedFeatured = featuredPost ? formatPost(featuredPost) : null;
   const formattedLatest = latestPosts.map(formatPost);
 
+  // Fetch active sidebar ad for Home page
+  const sidebarAd = await Ad.findOne({ placement: "sidebar", status: "active" })
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const formattedSidebarAd = sidebarAd
+    ? {
+        id: (sidebarAd as any)._id.toString(),
+        title: (sidebarAd as any).title,
+        imageUrl: (sidebarAd as any).imageUrl,
+        targetUrl: (sidebarAd as any).targetUrl,
+        altText: (sidebarAd as any).altText || (sidebarAd as any).title,
+      }
+    : null;
+
   return (
     <>
       <WebsiteJsonLd />
 
       <div className="space-y-16 sm:space-y-24 pb-20">
-        {/* Brand Hero Banner */}
-        <section className="relative pt-12 pb-8 sm:pt-16 sm:pb-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-linear-to-b from-slate-50/50 to-transparent dark:from-slate-950/40 dark:to-transparent">
+        {/* Brand Hero Banner with Side Ad Right at the Top */}
+        <section className="relative pt-6 pb-8 sm:pt-10 sm:pb-10 border-b border-slate-200/80 dark:border-slate-800/80 bg-linear-to-b from-slate-50/50 to-transparent dark:from-slate-950/40 dark:to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Modern Editorial & Deep Perspectives</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              {/* Left Column: Hero Headline & Description */}
+              <div className="lg:col-span-8 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Modern Editorial & Deep Perspectives</span>
+                </div>
+
+                <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.15]">
+                  Insightful analyses on technology, business, and India’s digital future.
+                </h1>
+
+                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                  Kartshart delivers long-form essays, architecture breakdowns, and editorial perspectives for thoughtful readers and practitioners.
+                </p>
               </div>
 
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                Insightful analyses on technology, business, and India’s digital future.
-              </h1>
-
-              <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
-                Kartshart delivers long-form essays, architecture breakdowns, and editorial perspectives for thoughtful readers and practitioners.
-              </p>
+              {/* Right Column: TOP-LEVEL SIDE AD (Visible immediately on first screen!) */}
+              <div className="lg:col-span-4 w-full">
+                <SidebarAd initialAd={formattedSidebarAd} />
+              </div>
             </div>
           </div>
         </section>
@@ -115,7 +140,7 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Latest Dispatches Grid */}
+        {/* Latest Dispatches Grid with Sidebar Ad */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
             <div>

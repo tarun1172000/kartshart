@@ -128,6 +128,14 @@ export function Footer() {
                   Terms of Service
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/affiliate-disclosure"
+                  className="text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                >
+                  Affiliate Disclosure
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -160,7 +168,14 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <p>© {currentYear} Kartshart.com. Crafted for quality journalism & deep perspectives.</p>
+          <div className="space-y-1.5 text-center sm:text-left">
+            <p>© {currentYear} Kartshart.com. Crafted for quality journalism & deep perspectives.</p>
+            <p className="text-slate-500 dark:text-slate-400">
+              <Link href="/affiliate-disclosure" className="hover:underline hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                As an Amazon Associate I earn from qualifying purchases.
+              </Link>
+            </p>
+          </div>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1 text-slate-500">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />

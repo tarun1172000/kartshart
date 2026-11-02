@@ -70,6 +70,11 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    other: {
+      "profiton-domain-verification": "a46c0313ae3083ca5136a6eaaf912f26d08e04c6ced9266c276dec865f68e111",
+    },
+  },
   alternates: {
     canonical: DEFAULT_SITE_URL,
     types: {
@@ -86,6 +91,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${newsreader.variable}`}>
       <head>
+        <meta
+          name="profiton-domain-verification"
+          content="a46c0313ae3083ca5136a6eaaf912f26d08e04c6ced9266c276dec865f68e111"
+        />
         <link rel="alternate" type="application/rss+xml" title="Kartshart RSS Feed" href="/rss.xml" />
         <link rel="author" href="/about" />
         

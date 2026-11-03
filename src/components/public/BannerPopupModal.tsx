@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { X, ExternalLink, Sparkles, Megaphone } from "lucide-react";
 import { trackBannerClickAction } from "@/actions/posts";
 
@@ -193,19 +192,25 @@ export function BannerPopupModal({
               </button>
             </div>
 
-            {/* Banner Image Container - Large and prominent on phone, tablet & desktop */}
-            <div className="relative w-full flex-1 min-h-[240px] xs:min-h-[280px] sm:min-h-[360px] md:min-h-[420px] lg:min-h-[480px] xl:min-h-[520px] h-[260px] xs:h-[300px] sm:h-[380px] md:h-[440px] lg:h-[500px] xl:h-[540px] bg-slate-100 dark:bg-slate-950 overflow-hidden">
-              <Image
+            {/* Banner Image Container - 100% Uncropped view (No cutting) */}
+            <div className="relative w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+              {/* Ambient backdrop glow for a seamless premium look */}
+              <div
+                className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-110"
+                style={{ backgroundImage: `url(${imageUrl})` }}
+                aria-hidden="true"
+              />
+
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={imageUrl}
                 alt={imageAlt || postTitle}
-                fill
-                priority
-                sizes="(max-width: 640px) 95vw, (max-width: 1024px) 85vw, 1000px"
-                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                className="relative z-10 w-full h-auto max-h-[62vh] sm:max-h-[70vh] object-contain block mx-auto select-none group-hover:scale-[1.01] transition-transform duration-300"
+                loading="eager"
               />
 
               {/* Hover overlay hint */}
-              <div className="absolute inset-0 bg-slate-950/10 group-hover:bg-slate-950/25 transition-colors flex items-end justify-end p-3 sm:p-5">
+              <div className="absolute inset-0 z-20 bg-slate-950/0 group-hover:bg-slate-950/20 transition-colors pointer-events-none flex items-end justify-end p-3 sm:p-5">
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-1.5 px-3.5 sm:px-4.5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 shadow-lg backdrop-blur-md">
                   <span>Visit Deal</span>
                   <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

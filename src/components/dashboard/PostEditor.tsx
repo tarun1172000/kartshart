@@ -2201,13 +2201,19 @@ export function PostEditor({
               </button>
             </div>
 
-            <div className="relative w-full flex-1 min-h-[240px] xs:min-h-[280px] sm:min-h-[360px] md:min-h-[420px] lg:min-h-[480px] xl:min-h-[520px] h-[260px] xs:h-[300px] sm:h-[380px] md:h-[440px] lg:h-[500px] xl:h-[540px] bg-slate-100 dark:bg-slate-950 overflow-hidden">
-              <Image
+            {/* Banner Image Container - 100% Uncropped view (No cutting) */}
+            <div className="relative w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-110"
+                style={{ backgroundImage: `url(${coverImageUrl})` }}
+                aria-hidden="true"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={coverImageUrl}
                 alt={coverImageAlt || title || "Cover"}
-                fill
-                sizes="(max-width: 640px) 95vw, (max-width: 1024px) 85vw, 1000px"
-                className="object-cover"
+                className="relative z-10 w-full h-auto max-h-[62vh] sm:max-h-[70vh] object-contain block mx-auto select-none"
+                loading="eager"
               />
             </div>
 

@@ -2175,17 +2175,18 @@ export function PostEditor({
         </div>
       )}
 
-      {/* Test Popup Modal for Editor Preview - Compact Size */}
+      {/* Test Popup Modal for Editor Preview - Large Size with Deep Blur */}
       {previewPopupModal && coverImageUrl && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-6 bg-slate-950/85 backdrop-blur-xl sm:backdrop-blur-2xl animate-fadeIn overflow-y-auto"
+          style={{ backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}
           onClick={() => setPreviewPopupModal(false)}
         >
           <div
-            className="relative w-full max-w-[340px] sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-amber-500/30"
+            className="relative w-full max-w-[94vw] xs:max-w-[460px] sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[92vh] flex flex-col bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 border-amber-500/40"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3.5 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/10 border-b border-slate-100 dark:border-slate-800">
+            <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-amber-500/15 via-transparent to-amber-500/15 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 Popup Modal Test Preview
@@ -2193,28 +2194,29 @@ export function PostEditor({
               <button
                 type="button"
                 onClick={() => setPreviewPopupModal(false)}
-                className="p-1.5 sm:p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                className="p-1.5 sm:p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 aria-label="Close test modal"
               >
-                <X className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
-            <div className="relative w-full h-[170px] sm:h-[240px] md:h-[300px] lg:h-[340px] bg-slate-100 dark:bg-slate-950">
+            <div className="relative w-full flex-1 min-h-[240px] xs:min-h-[280px] sm:min-h-[360px] md:min-h-[420px] lg:min-h-[480px] xl:min-h-[520px] h-[260px] xs:h-[300px] sm:h-[380px] md:h-[440px] lg:h-[500px] xl:h-[540px] bg-slate-100 dark:bg-slate-950 overflow-hidden">
               <Image
                 src={coverImageUrl}
                 alt={coverImageAlt || title || "Cover"}
                 fill
+                sizes="(max-width: 640px) 95vw, (max-width: 1024px) 85vw, 1000px"
                 className="object-cover"
               />
             </div>
 
-            <div className="px-4 sm:px-6 py-3 sm:py-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div className="shrink-0 px-4 sm:px-6 py-3.5 sm:py-4.5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm md:text-base font-semibold text-slate-800 dark:text-slate-200 truncate">
+                <p className="text-sm sm:text-base md:text-lg font-bold text-slate-800 dark:text-slate-200 truncate">
                   {coverImageAlt || title || "Banner Title"}
                 </p>
-                <p className="text-[10px] sm:text-xs text-slate-400 truncate">
+                <p className="text-xs sm:text-sm text-slate-400 truncate">
                   {coverImageLink ? `Target: ${coverImageLink}` : "No link attached"}
                 </p>
               </div>

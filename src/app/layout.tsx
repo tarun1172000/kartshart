@@ -73,6 +73,7 @@ export const metadata: Metadata = {
   verification: {
     other: {
       "profiton-domain-verification": "a46c0313ae3083ca5136a6eaaf912f26d08e04c6ced9266c276dec865f68e111",
+      "impact-site-verification": "2c463398-92f9-426e-8814-060f1fa72f45",
     },
   },
   alternates: {
@@ -94,6 +95,11 @@ export default function RootLayout({
         <meta
           name="profiton-domain-verification"
           content="a46c0313ae3083ca5136a6eaaf912f26d08e04c6ced9266c276dec865f68e111"
+        />
+        <meta
+          name="impact-site-verification"
+          content="2c463398-92f9-426e-8814-060f1fa72f45"
+          {...({ value: "2c463398-92f9-426e-8814-060f1fa72f45" } as any)}
         />
         <link rel="alternate" type="application/rss+xml" title="Kartshart RSS Feed" href="/rss.xml" />
         <link rel="author" href="/about" />

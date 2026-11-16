@@ -104,6 +104,14 @@ export default function RootLayout({
         <link rel="alternate" type="application/rss+xml" title="Kartshart RSS Feed" href="/rss.xml" />
         <link rel="author" href="/about" />
         
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1570580581627167"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+
         {/* Google Analytics */}
         <Script
           strategy="afterInteractive"
